@@ -96,5 +96,10 @@ dmypy.json
 .vscode
 .history
 
+
+# Databricks config files
 .databricks
 databricks.yml
+
+# Data source folders
+data/

@@ -37,3 +37,6 @@ ignore = [
 
 [tool.ruff.format]
 indent-style = "space"
+
+[tool.uv.workspace]
+members = ["hotel-data-preprocessing"]

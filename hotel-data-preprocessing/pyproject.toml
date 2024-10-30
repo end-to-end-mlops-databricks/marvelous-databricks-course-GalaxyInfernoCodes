@@ -1,0 +1,14 @@
+[project]
+name = "hotel-data-preprocessing"
+version = "0.1.0"
+description = "Preprocessing steps for hotel booking dataset"
+readme = "README.md"
+authors = [
+    { name = "Sarah Glasmacher", email = "galaxyinferno.codes@gmail.com" }
+]
+requires-python = "==3.11.*"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

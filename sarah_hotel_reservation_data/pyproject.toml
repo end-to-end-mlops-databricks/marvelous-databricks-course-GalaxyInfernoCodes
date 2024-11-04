@@ -1,5 +1,5 @@
 [project]
-name = "hotel-data-preprocessing"
+name = "sarah_hotel_reservation_data"
 version = "0.1.0"
 description = "Preprocessing steps for hotel booking dataset"
 readme = "README.md"

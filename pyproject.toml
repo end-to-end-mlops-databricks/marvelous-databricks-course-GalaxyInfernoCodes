@@ -39,4 +39,4 @@ ignore = [
 indent-style = "space"
 
 [tool.uv.workspace]
-members = ["hotel-data-preprocessing"]
+members = ["hotel-data-preprocessing", "my-package"]

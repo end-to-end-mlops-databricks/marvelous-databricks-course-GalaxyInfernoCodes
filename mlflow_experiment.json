@@ -1,0 +1,15 @@
+{
+    "_experiment_id": "574268833425551",
+    "_name": "/Shared/hotel-data-basics",
+    "_artifact_location": "dbfs:/databricks/mlflow-tracking/574268833425551",
+    "_lifecycle_stage": "active",
+    "_tags": {
+        "mlflow.experiment.sourceName": "/Shared/hotel-data-basics",
+        "mlflow.ownerId": "4197150212560385",
+        "mlflow.ownerEmail": "sarah.glasmacher@swk.de",
+        "mlflow.experimentType": "MLFLOW_EXPERIMENT",
+        "repository_name": "hotel-data"
+    },
+    "_creation_time": 1730473639463,
+    "_last_update_time": 1730473639463
+}

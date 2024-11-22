@@ -2,17 +2,25 @@ catalog_name: dev
 schema_name: datalab_1ai
 table_name_prefix: sarah_hotel_data
 
+pipeline_id: 4cae2b09-bf68-449f-8c50-d063e71a8e4d # change this later 
+
 parameters:
   learning_rate: 0.01
   n_estimators: 1000
   max_depth: 6
 
-drop_columns:
-  - Booking_ID
+ab_test:
+  learning_rate_a: 0.02
+  learning_rate_b: 0.02
+  n_estimators: 1000
+  max_depth_a: 6
+  max_depth_b: 10
+
 categorical_columns:
   - type_of_meal_plan
   - room_type_reserved
   - market_segment_type
+
 numerical_columns:
   - no_of_adults
   - no_of_children
@@ -28,5 +36,6 @@ numerical_columns:
   - no_of_previous_bookings_not_canceled
   - avg_price_per_room
   - no_of_special_requests
+
 target_variable:
   - booking_status

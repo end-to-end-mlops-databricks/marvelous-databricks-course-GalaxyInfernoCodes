@@ -1,4 +1,3 @@
-import re
 from typing import Tuple
 
 import pandas as pd
@@ -6,7 +5,6 @@ import yaml
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import current_timestamp, to_utc_timestamp
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 
 
 class HotelDataset:
@@ -53,50 +51,6 @@ class HotelDataset:
         self.full_data = self.full_data.drop(columns=columns_to_drop)
         return self.full_data
 
-    def encode_categorical_variables(self) -> pd.DataFrame:
-        """
-        Encode categorical variables defined in config via yaml using one-hot encoding.
-
-        Returns:
-            pd.DataFrame: DataFrame with categorical variables encoded.
-        """
-        categorical_column_names = self.config["categorical_columns"]
-
-        encoded_dataframe = pd.get_dummies(
-            self.full_data,
-            columns=categorical_column_names,
-            drop_first=True,
-        )
-
-        # Remove invalid characters from column names
-        encoded_dataframe.columns = [
-            re.sub(r"[ ,;{}()\n\t=]", "_", col) for col in encoded_dataframe.columns
-        ]
-
-        self.full_data = encoded_dataframe
-
-        return self.full_data
-
-    def normalize_numerical_features(self) -> pd.DataFrame:
-        """
-        Normalize/standardize the given numerical features.
-
-        Args:
-            columns_to_normalize (list[str]): List of numerical column names to be normalized.
-
-        Returns:
-            pd.DataFrame: DataFrame with normalized numerical features.
-        """
-        columns_to_normalize = self.config["numerical_columns"]
-
-        scaler = StandardScaler()
-
-        self.full_data[columns_to_normalize] = scaler.fit_transform(
-            self.full_data[columns_to_normalize]
-        )
-
-        return self.full_data
-
     def convert_target_variable(self) -> pd.DataFrame:
         """
         Convert the target variable (defined via config) into binary.
@@ -112,10 +66,17 @@ class HotelDataset:
         return self.full_data
 
     def run_data_preparation(self) -> None:
-        self.drop_columns()
-        self.encode_categorical_variables()
-        self.normalize_numerical_features()
         self.convert_target_variable()
+
+        # Handle numeric features
+        num_features = self.config["numerical_columns"]
+        for col in num_features:
+            self.full_data[col] = pd.to_numeric(self.full_data[col], errors="coerce")
+
+        # Convert categorical features to the appropriate type
+        cat_features = self.config["categorical_columns"]
+        for cat_col in cat_features:
+            self.full_data[cat_col] = self.full_data[cat_col].astype("category")
 
         train_data, test_data = train_test_split(
             self.full_data,
@@ -158,6 +119,17 @@ class HotelDataset:
     ):
         """Save the train and test sets into Databricks tables."""
 
+        # Drop the tables if they already exist
+        spark.sql(
+            f"DROP TABLE IF EXISTS {self.config['catalog_name']}.{self.config['schema_name']}.{self.config['table_name_prefix']}_train_set"
+        )
+        spark.sql(
+            f"DROP TABLE IF EXISTS {self.config['catalog_name']}.{self.config['schema_name']}.{self.config['table_name_prefix']}_val_set"
+        )
+        spark.sql(
+            f"DROP TABLE IF EXISTS {self.config['catalog_name']}.{self.config['schema_name']}.{self.config['table_name_prefix']}_test_set"
+        )
+
         train_set_with_timestamp = spark.createDataFrame(self.train_data).withColumn(
             "update_timestamp_utc", to_utc_timestamp(current_timestamp(), "UTC")
         )
@@ -170,15 +142,15 @@ class HotelDataset:
             "update_timestamp_utc", to_utc_timestamp(current_timestamp(), "UTC")
         )
 
-        train_set_with_timestamp.write.mode("append").saveAsTable(
+        train_set_with_timestamp.write.mode("overwrite").saveAsTable(
             f"{self.config['catalog_name']}.{self.config['schema_name']}.{self.config['table_name_prefix']}_train_set"
         )
 
-        val_set_with_timestamp.write.mode("append").saveAsTable(
+        val_set_with_timestamp.write.mode("overwrite").saveAsTable(
             f"{self.config['catalog_name']}.{self.config['schema_name']}.{self.config['table_name_prefix']}_val_set"
         )
 
-        test_set_with_timestamp.write.mode("append").saveAsTable(
+        test_set_with_timestamp.write.mode("overwrite").saveAsTable(
             f"{self.config['catalog_name']}.{self.config['schema_name']}.{self.config['table_name_prefix']}_test_set"
         )
 
